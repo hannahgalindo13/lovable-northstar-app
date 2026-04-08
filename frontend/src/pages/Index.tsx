@@ -2,8 +2,9 @@ import { PublicLayout } from "@/components/PublicLayout";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Heart, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
-import { getDashboardStats, getImpactData, type DashboardStats, type ImpactData } from "@/services/api";
+import { createDonation, getDashboardStats, getImpactData, type DashboardStats, type ImpactData } from "@/services/api";
 
 /* Animated number that counts up on mount */
 const Counter = ({ end, suffix = "", prefix = "" }: { end: number; suffix?: string; prefix?: string }) => {
@@ -53,6 +54,10 @@ const Index = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [impactData, setImpactData] = useState<ImpactData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [donationAmount, setDonationAmount] = useState("1000");
+  const [donationNote, setDonationNote] = useState("");
+  const [donationType, setDonationType] = useState("Monetary");
+  const [submittingDonation, setSubmittingDonation] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -103,6 +108,28 @@ const Index = () => {
     : [];
 
   const topAllocations = impactData?.allocationBreakdown.slice(0, 3) ?? [];
+
+  const submitDonation = async () => {
+    try {
+      setSubmittingDonation(true);
+      await createDonation({
+        donationType,
+        donationDate: new Date().toISOString().slice(0, 10),
+        channelSource: "Direct",
+        amount: Number(donationAmount),
+        estimatedValue: Number(donationAmount),
+        impactUnit: donationType === "Monetary" ? "pesos" : "hours",
+        isRecurring: 0,
+        notes: donationNote,
+      });
+      setDonationNote("");
+    } catch (submitError) {
+      console.error(submitError);
+      setError("Donation submission failed. Please try again.");
+    } finally {
+      setSubmittingDonation(false);
+    }
+  };
 
   if ((!stats || !impactData) && !error) {
     return (
@@ -404,11 +431,41 @@ const Index = () => {
               Every dollar directly funds programs that transform lives.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="rounded-full bg-terracotta text-terracotta-foreground hover:bg-terracotta/90 font-body font-medium text-sm px-10 gap-2 h-13 transition-all duration-300 hover:shadow-xl hover:shadow-terracotta/25 hover:scale-[1.02]">
+              <Button
+                size="lg"
+                className="rounded-full bg-terracotta text-terracotta-foreground hover:bg-terracotta/90 font-body font-medium text-sm px-10 gap-2 h-13 transition-all duration-300 hover:shadow-xl hover:shadow-terracotta/25 hover:scale-[1.02]"
+              >
                 <Heart className="w-4 h-4" /> Give Today
               </Button>
               <Button size="lg" variant="ghost" className="rounded-full text-navy-foreground/70 hover:text-navy-foreground hover:bg-navy-foreground/5 font-body text-sm px-10 h-13">
                 Become a Volunteer
+              </Button>
+            </div>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-3">
+              <select
+                className="h-10 rounded-xl border bg-background px-3 text-sm text-foreground"
+                value={donationType}
+                onChange={(event) => setDonationType(event.target.value)}
+              >
+                <option value="Monetary">Monetary</option>
+                <option value="Time">Time</option>
+                <option value="Skills">Skills</option>
+                <option value="InKind">In-kind</option>
+              </select>
+              <Input
+                value={donationAmount}
+                onChange={(event) => setDonationAmount(event.target.value)}
+                placeholder="Amount/value"
+                className="bg-background text-foreground"
+              />
+              <Input
+                value={donationNote}
+                onChange={(event) => setDonationNote(event.target.value)}
+                placeholder="Optional note"
+                className="bg-background text-foreground"
+              />
+              <Button onClick={submitDonation} disabled={submittingDonation}>
+                {submittingDonation ? "Submitting..." : "Submit Donation"}
               </Button>
             </div>
           </Reveal>

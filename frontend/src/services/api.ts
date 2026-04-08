@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:5048/api";
+const API_BASE = import.meta.env.VITE_API_URL;
+// SHOW IN VIDEO: API base URL is environment-based (no hardcoded ports)
+console.log("API BASE URL:", API_BASE);
 const LARGE_PAGE_SIZE = 200;
 
 type WrappedResponse<T> = {
@@ -6,6 +8,14 @@ type WrappedResponse<T> = {
   data: T;
   message: string;
 };
+
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
+}
 
 export type DashboardStats = {
   totalResidents: number;
@@ -52,6 +62,16 @@ export type Donation = {
   campaignName?: string | null;
   notes?: string | null;
   channelSource: string;
+};
+
+export type DonorDonationHistoryItem = {
+  donationId: number;
+  amount?: number | null;
+  estimatedValue?: number | null;
+  donationDate: string;
+  impactUnit?: string | null;
+  donationType: string;
+  notes?: string | null;
 };
 
 export type Resident = {
@@ -106,6 +126,12 @@ export type HomeVisitation = {
   coordinationKind?: string;
 };
 
+export type AuthMeResponse = {
+  isAuthenticated: boolean;
+  email?: string;
+  roles?: string[];
+};
+
 export type ResidentFormInput = {
   name: string;
   caseCategory: string;
@@ -121,15 +147,16 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       ...(options?.headers ?? {}),
     };
 
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const response = await fetch(`${API_BASE}/api${endpoint}`, {
       headers: mergedHeaders,
+      credentials: "include",
       ...options,
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("API ERROR:", errorText);
-      throw new Error(`HTTP error: ${response.status}`);
+      throw new ApiError(response.status, `HTTP error: ${response.status}`);
     }
 
     const responseText = await response.text();
@@ -239,9 +266,18 @@ export const getDonations = async () => {
   return unwrap(response);
 };
 
-export const createDonation = async (payload: Omit<Donation, "donationId">) => {
+export const getMyDonations = async () => {
+  const response = await api.get<WrappedResponse<DonorDonationHistoryItem[]> | DonorDonationHistoryItem[]>(
+    "/donations/my",
+  );
+  return unwrap(response);
+};
+
+export const createDonation = async (
+  payload: Omit<Donation, "donationId" | "supporterId"> & { supporterId?: number },
+) => {
   const requestPayload = {
-    supporterId: Number(payload.supporterId),
+    supporterId: Number(payload.supporterId ?? 0),
     donationType: payload.donationType,
     donationDate: payload.donationDate,
     channelSource: payload.channelSource,
@@ -281,7 +317,7 @@ export const updateDonation = async (id: number, payload: Donation) => {
 };
 
 export const deleteDonation = async (id: number) => {
-  return api.delete(`/donations/${id}`);
+  return api.delete(`/donations/${id}?confirm=true`);
 };
 
 export const getResidents = async () => {
@@ -361,7 +397,7 @@ export const updateResident = async (resident: Resident, input: ResidentFormInpu
 };
 
 export const deleteResident = async (id: number) => {
-  return api.delete(`/residents/${id}`);
+  return api.delete(`/residents/${id}?confirm=true`);
 };
 
 export const getSafehouses = async () => {
@@ -428,7 +464,7 @@ export const updateProcessRecording = async (id: number, payload: ProcessRecordi
 };
 
 export const deleteProcessRecording = async (id: number) => {
-  return api.delete(`/processrecordings/${id}`);
+  return api.delete(`/processrecordings/${id}?confirm=true`);
 };
 
 export const getHomeVisitations = async () => {
@@ -483,5 +519,21 @@ export const updateSupporter = async (supporterId: number, payload: Supporter & 
 };
 
 export const deleteSupporter = async (supporterId: number) => {
-  return api.delete(`/supporters/${supporterId}`);
+  return api.delete(`/supporters/${supporterId}?confirm=true`);
+};
+
+export const login = async (email: string, password: string, rememberMe = true) => {
+  return api.post("/auth/login", { email, password, rememberMe });
+};
+
+export const register = async (email: string, password: string) => {
+  return api.post("/auth/register", { email, password });
+};
+
+export const logout = async () => {
+  return api.post("/auth/logout", {});
+};
+
+export const getCurrentUser = async () => {
+  return api.get<AuthMeResponse>("/auth/me");
 };

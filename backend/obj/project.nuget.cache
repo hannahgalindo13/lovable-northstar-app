@@ -1,10 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "LKmAoKYsOBs=",
+  "dgSpecHash": "86LkVPiH4vE=",
   "success": true,
   "projectFilePath": "/Users/hannahgalindo/Downloads/lovable-northstar-app-main/backend/Backend.csproj",
   "expectedPackageFiles": [
     "/Users/hannahgalindo/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
+    "/Users/hannahgalindo/.nuget/packages/microsoft.aspnetcore.identity.entityframeworkcore/10.0.5/microsoft.aspnetcore.identity.entityframeworkcore.10.0.5.nupkg.sha512",
     "/Users/hannahgalindo/.nuget/packages/microsoft.aspnetcore.openapi/10.0.1/microsoft.aspnetcore.openapi.10.0.1.nupkg.sha512",
     "/Users/hannahgalindo/.nuget/packages/microsoft.build.framework/18.0.2/microsoft.build.framework.18.0.2.nupkg.sha512",
     "/Users/hannahgalindo/.nuget/packages/microsoft.codeanalysis.analyzers/3.11.0/microsoft.codeanalysis.analyzers.3.11.0.nupkg.sha512",

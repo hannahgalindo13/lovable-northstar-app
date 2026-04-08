@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/lib/theme";
 import { CookieBanner } from "@/components/CookieBanner";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AuthProvider } from "@/lib/auth";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ImpactDashboard from "./pages/ImpactDashboard.tsx";
@@ -24,31 +26,48 @@ const queryClient = new QueryClient();
 const App = () => (
   <ThemeProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/impact" element={<ImpactDashboard />} />
-            <Route path="/donor" element={<DonorDashboard />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="donors" element={<DonorsPage />} />
-              <Route path="cases" element={<CaseloadPage />} />
-              <Route path="process-records" element={<RecordingsPage />} />
-              <Route path="visits" element={<VisitationsPage />} />
-              <Route path="reports" element={<ReportsPage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-        <CookieBanner />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/impact" element={<ImpactDashboard />} />
+              <Route
+                path="/donors"
+                element={
+                  <ProtectedRoute role="Donor">
+                    <DonorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/donor" element={<Navigate to="/donors" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute role="Admin">
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="donors" element={<DonorsPage />} />
+                <Route path="cases" element={<CaseloadPage />} />
+                <Route path="process-records" element={<RecordingsPage />} />
+                <Route path="visits" element={<VisitationsPage />} />
+                <Route path="reports" element={<ReportsPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+          <CookieBanner />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   </ThemeProvider>
 );

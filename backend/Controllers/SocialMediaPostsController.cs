@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/socialmediaposts")]
+[Authorize]
 public class SocialMediaPostsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -56,6 +58,7 @@ public class SocialMediaPostsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<SocialMediaPost>>> Create([FromBody] SocialMediaPost post)
     {
         try
@@ -72,6 +75,7 @@ public class SocialMediaPostsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<SocialMediaPost>>> Update(int id, [FromBody] SocialMediaPost post)
     {
         try
@@ -95,6 +99,7 @@ public class SocialMediaPostsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         try

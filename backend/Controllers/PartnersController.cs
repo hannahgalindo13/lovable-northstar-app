@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/partners")]
+[Authorize]
 public class PartnersController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -56,6 +58,7 @@ public class PartnersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<Partner>>> Create([FromBody] Partner partner)
     {
         try
@@ -72,6 +75,7 @@ public class PartnersController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<Partner>>> Update(int id, [FromBody] Partner partner)
     {
         try
@@ -95,6 +99,7 @@ public class PartnersController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         try

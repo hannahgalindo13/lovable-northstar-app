@@ -33,6 +33,9 @@ public partial class Donation
 
     public int? ReferralPostId { get; set; }
 
+    // SHOW IN VIDEO: Donation table includes UserId for ownership tracking
+    public string? UserId { get; set; }
+
     public virtual ICollection<DonationAllocation> DonationAllocations { get; set; } = new List<DonationAllocation>();
 
     public virtual ICollection<InKindDonationItem> InKindDonationItems { get; set; } = new List<InKindDonationItem>();

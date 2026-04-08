@@ -7,19 +7,34 @@ import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { Moon, Sun } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
+  const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setTimeout(() => { setLoading(false); navigate("/admin"); }, 1500);
+    try {
+      setLoading(true);
+      setError(null);
+      const currentUser = await login(email, password);
+      if (currentUser.roles?.includes("Donor")) {
+        navigate("/donors");
+        return;
+      }
+      navigate("/admin");
+    } catch {
+      setError("Invalid credentials.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -70,6 +85,7 @@ const Login = () => {
 
           <h1 className="font-display text-3xl font-bold text-foreground mb-2">Welcome back</h1>
           <p className="font-body text-sm text-muted-foreground mb-10">Sign in to your dashboard</p>
+          {error && <p className="font-body text-sm text-destructive mb-4">{error}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">

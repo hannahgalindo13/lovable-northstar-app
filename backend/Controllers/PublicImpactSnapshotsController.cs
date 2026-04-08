@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/publicimpactsnapshots")]
+[Authorize]
 public class PublicImpactSnapshotsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -57,6 +59,7 @@ public class PublicImpactSnapshotsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<PublicImpactSnapshot>>> Create([FromBody] PublicImpactSnapshot snapshot)
     {
         try
@@ -73,6 +76,7 @@ public class PublicImpactSnapshotsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<PublicImpactSnapshot>>> Update(int id, [FromBody] PublicImpactSnapshot snapshot)
     {
         try
@@ -96,6 +100,7 @@ public class PublicImpactSnapshotsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         try

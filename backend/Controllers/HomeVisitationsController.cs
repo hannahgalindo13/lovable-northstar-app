@@ -1,6 +1,7 @@
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/homevisitations")]
+[Authorize]
 public class HomeVisitationsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -57,6 +59,7 @@ public class HomeVisitationsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<HomeVisitation>>> Create([FromBody] HomeVisitationUpsertDto dto)
     {
         try
@@ -92,6 +95,7 @@ public class HomeVisitationsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<HomeVisitation>>> Update(int id, [FromBody] HomeVisitationUpsertDto dto)
     {
         try
@@ -126,6 +130,7 @@ public class HomeVisitationsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         try

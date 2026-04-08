@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/healthwellbeingrecords")]
+[Authorize]
 public class HealthWellbeingRecordsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -56,6 +58,7 @@ public class HealthWellbeingRecordsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<HealthWellbeingRecord>>> Create([FromBody] HealthWellbeingRecord record)
     {
         try
@@ -72,6 +75,7 @@ public class HealthWellbeingRecordsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<HealthWellbeingRecord>>> Update(int id, [FromBody] HealthWellbeingRecord record)
     {
         try
@@ -95,6 +99,7 @@ public class HealthWellbeingRecordsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         try

@@ -1,6 +1,7 @@
 using Backend.Data;
 using Backend.Models;
 using Backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace Backend.Controllers;
 
 [ApiController]
 [Route("api/supporters")]
+[Authorize]
 public class SupportersController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -57,6 +59,7 @@ public class SupportersController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<Supporter>>> Create([FromBody] SupporterUpsertDto dto)
     {
         try
@@ -91,6 +94,7 @@ public class SupportersController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<Supporter>>> Update(int id, [FromBody] SupporterUpsertDto dto)
     {
         try
@@ -124,6 +128,7 @@ public class SupportersController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<object>>> Delete(int id)
     {
         try

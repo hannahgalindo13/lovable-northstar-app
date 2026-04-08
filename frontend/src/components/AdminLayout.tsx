@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 const navGroups = [
   {
@@ -33,6 +34,7 @@ const navGroups = [
 
 export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
   const { theme, toggle } = useTheme();
+  const { logout } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -101,11 +103,15 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             {!collapsed && <span>Collapse</span>}
           </button>
-          <Link to="/"
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-[13px] font-body text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-all">
+          <button
+            onClick={() => {
+              void logout();
+            }}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-[13px] font-body text-sidebar-foreground/40 hover:text-sidebar-foreground hover:bg-sidebar-accent/40 transition-all"
+          >
             <LogOut className="w-4 h-4" />
             {!collapsed && <span>Sign Out</span>}
-          </Link>
+          </button>
         </div>
       </aside>
 
