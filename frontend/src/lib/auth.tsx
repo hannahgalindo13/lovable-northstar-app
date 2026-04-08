@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getCurrentUser, login as apiLogin, logout as apiLogout, type AuthMeResponse } from "@/services/api";
+import { clearAuthToken, getCurrentUser, login as apiLogin, logout as apiLogout, type AuthMeResponse } from "@/services/api";
 
 type AuthContextValue = {
   user: AuthMeResponse | null;
@@ -17,8 +17,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const refresh = async () => {
-    const me = await getCurrentUser();
-    setUser(me.isAuthenticated ? me : null);
+    try {
+      const me = await getCurrentUser();
+      setUser(me.isAuthenticated ? me : null);
+    } catch {
+      setUser(null);
+      clearAuthToken();
+    }
   };
 
   useEffect(() => {
@@ -32,8 +37,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       refresh,
       login: async (email: string, password: string) => {
         await apiLogin(email, password, true);
-        await refresh();
-        return (await getCurrentUser()) as AuthMeResponse;
+        const me = await getCurrentUser();
+        setUser(me.isAuthenticated ? me : null);
+        return me as AuthMeResponse;
       },
       logout: async () => {
         await apiLogout();

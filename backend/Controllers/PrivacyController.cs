@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Controllers;
 
 [ApiController]
-[Route("privacy")]
-[AllowAnonymous]
+[Route("api/privacy")]
+[Authorize]
 public class PrivacyController : ControllerBase
 {
     [HttpGet]

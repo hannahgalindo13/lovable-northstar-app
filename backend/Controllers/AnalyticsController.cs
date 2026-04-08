@@ -2,12 +2,13 @@ using Backend.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Backend.Controllers;
 
 [ApiController]
 [Route("api")]
-[AllowAnonymous]
+[Authorize]
 public class AnalyticsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -23,10 +24,17 @@ public class AnalyticsController : ControllerBase
     {
         try
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
             var totalResidents = await _db.Residents.CountAsync();
             var activeResidents = await _db.Residents.CountAsync(x => x.CaseStatus == "Active");
             var safehouseCount = await _db.Safehouses.CountAsync();
-            var totalDonations = await _db.Donations.SumAsync(x => x.Amount ?? 0m);
+            var totalDonations = isAdmin
+                ? await _db.Donations.SumAsync(x => x.Amount ?? 0m)
+                : await _db.Donations
+                    .Where(x => x.UserId == userId)
+                    .SumAsync(x => x.Amount ?? 0m);
 
             return Ok(new
             {
@@ -47,6 +55,9 @@ public class AnalyticsController : ControllerBase
     {
         try
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole("Admin");
+
             var latestSnapshot = await _db.PublicImpactSnapshots
                 .AsNoTracking()
                 .Where(x => x.IsPublished == 1)
@@ -56,7 +67,13 @@ public class AnalyticsController : ControllerBase
             var totalResidents = await _db.Residents.CountAsync();
             var activeResidents = await _db.Residents.CountAsync(x => x.CaseStatus == "Active");
             var safehouseCount = await _db.Safehouses.CountAsync();
-            var totalDonations = await _db.Donations.SumAsync(x => x.Amount ?? 0m);
+            var donationsQuery = _db.Donations.AsNoTracking();
+            if (!isAdmin)
+            {
+                donationsQuery = donationsQuery.Where(x => x.UserId == userId);
+            }
+
+            var totalDonations = await donationsQuery.SumAsync(x => x.Amount ?? 0m);
 
             var metricsJson = latestSnapshot?.MetricPayloadJson;
             if (string.IsNullOrWhiteSpace(metricsJson))
@@ -66,8 +83,7 @@ public class AnalyticsController : ControllerBase
                 """;
             }
 
-            var donationRows = await _db.Donations
-                .AsNoTracking()
+            var donationRows = await donationsQuery
                 .Select(x => new
                 {
                     x.DonationDate,

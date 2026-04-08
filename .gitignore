@@ -4,4 +4,8 @@ obj/
 .DS_Store
 .env
 *.env
+*.env.local
+*.secrets.json
+backend/appsettings.Development.local.json
+backend/appsettings.*.local.json
 backend/appsettings.Local.json

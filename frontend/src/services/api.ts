@@ -1,7 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_URL;
-// SHOW IN VIDEO: API base URL is environment-based (no hardcoded ports)
-console.log("API BASE URL:", API_BASE);
 const LARGE_PAGE_SIZE = 200;
+const AUTH_TOKEN_KEY = "northstar-auth-token";
 
 type WrappedResponse<T> = {
   success: boolean;
@@ -132,6 +131,23 @@ export type AuthMeResponse = {
   roles?: string[];
 };
 
+export type AuthResponse = {
+  message: string;
+  accessToken: string;
+  email: string;
+  roles: string[];
+};
+
+export const setAuthToken = (token: string) => {
+  sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+};
+
+export const clearAuthToken = () => {
+  sessionStorage.removeItem(AUTH_TOKEN_KEY);
+};
+
+export const getAuthToken = () => sessionStorage.getItem(AUTH_TOKEN_KEY);
+
 export type ResidentFormInput = {
   name: string;
   caseCategory: string;
@@ -142,14 +158,15 @@ export type ResidentFormInput = {
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   try {
+    const token = getAuthToken();
     const mergedHeaders: HeadersInit = {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options?.headers ?? {}),
     };
 
     const response = await fetch(`${API_BASE}/api${endpoint}`, {
       headers: mergedHeaders,
-      credentials: "include",
       ...options,
     });
 
@@ -173,14 +190,12 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 export const api = {
   get: <T>(endpoint: string) => request<T>(endpoint),
   post: <T>(endpoint: string, body: unknown) => {
-    console.log("Payload being sent:", JSON.stringify(body, null, 2));
     return request<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(body),
     });
   },
   put: <T>(endpoint: string, body: unknown) => {
-    console.log("Payload being sent:", JSON.stringify(body, null, 2));
     return request<T>(endpoint, {
       method: "PUT",
       body: JSON.stringify(body),
@@ -523,15 +538,23 @@ export const deleteSupporter = async (supporterId: number) => {
 };
 
 export const login = async (email: string, password: string, rememberMe = true) => {
-  return api.post("/auth/login", { email, password, rememberMe });
+  const response = await api.post<AuthResponse>("/auth/login", { email, password, rememberMe });
+  setAuthToken(response.accessToken);
+  return response;
 };
 
 export const register = async (email: string, password: string) => {
-  return api.post("/auth/register", { email, password });
+  const response = await api.post<AuthResponse>("/auth/register", { email, password });
+  setAuthToken(response.accessToken);
+  return response;
 };
 
 export const logout = async () => {
-  return api.post("/auth/logout", {});
+  try {
+    await api.post("/auth/logout", {});
+  } finally {
+    clearAuthToken();
+  }
 };
 
 export const getCurrentUser = async () => {

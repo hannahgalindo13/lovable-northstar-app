@@ -62,7 +62,7 @@ public class DonationsController : ControllerBase
     }
 
     [HttpPost]
-    [AllowAnonymous]
+    [Authorize(Roles = "Admin,Donor")]
     public async Task<ActionResult<ApiResponse<Donation>>> Create([FromBody] DonationUpsertDto dto)
     {
         try
@@ -85,8 +85,6 @@ public class DonationsController : ControllerBase
                 Notes = dto.Notes,
                 CreatedByPartnerId = dto.CreatedByPartnerId,
                 ReferralPostId = dto.ReferralPostId,
-                // SHOW IN VIDEO: Anonymous donations allowed (UserId = null)
-                // SHOW IN VIDEO: Logged-in donations tied to user account
                 UserId = userId
             };
 

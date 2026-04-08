@@ -15,7 +15,9 @@ public static class SeedData
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var roles = new[] { "Admin", "Donor" };
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        var roles = new[] { "Admin", "Donor", "Staff" };
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
@@ -24,11 +26,13 @@ public static class SeedData
             }
         }
 
-        // SHOW IN VIDEO: Pre-seeded Admin user
-        await EnsureUserAsync(userManager, "admin@test.com", "AdminPassword123!", "Admin");
-        // SHOW IN VIDEO: Pre-seeded Donor user
-        await EnsureUserAsync(userManager, "donor@test.com", "DonorPassword123!", "Donor");
-        // SHOW IN VIDEO: Admin can access /admin, Donor cannot
+        var adminEmail = configuration["SeedUsers:Admin:Email"] ?? "admin@example.local";
+        var adminPassword = configuration["SeedUsers:Admin:Password"] ?? "AdminPassword1234!";
+        var donorEmail = configuration["SeedUsers:Donor:Email"] ?? "donor@example.local";
+        var donorPassword = configuration["SeedUsers:Donor:Password"] ?? "DonorPassword1234!";
+
+        await EnsureUserAsync(userManager, adminEmail, adminPassword, "Admin");
+        await EnsureUserAsync(userManager, donorEmail, donorPassword, "Donor");
     }
 
     private static async Task EnsureUserAsync(
