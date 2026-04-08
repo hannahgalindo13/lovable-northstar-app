@@ -1,11 +1,22 @@
 node_modules/
+
+# Build outputs
 bin/
 obj/
-.DS_Store
+
+# User-specific files
+*.user
+*.suo
+
+# Environment / secrets
 .env
+appsettings.Development.json
 *.env
 *.env.local
 *.secrets.json
 backend/appsettings.Development.local.json
 backend/appsettings.*.local.json
 backend/appsettings.Local.json
+
+# OS files
+.DS_Store
