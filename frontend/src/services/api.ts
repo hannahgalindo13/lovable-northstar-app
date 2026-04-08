@@ -159,9 +159,10 @@ export type ResidentFormInput = {
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   try {
     const token = getAuthToken();
+    const isPublicEndpoint = endpoint.startsWith("/public/");
     const mergedHeaders: HeadersInit = {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(!isPublicEndpoint && token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options?.headers ?? {}),
     };
 
@@ -212,7 +213,7 @@ const unwrap = <T>(value: WrappedResponse<T> | T): T => {
 };
 
 export const getDashboardStats = async () => {
-  return api.get<DashboardStats>("/dashboard");
+  return api.get<DashboardStats>("/public/stats");
 };
 
 export const getImpactData = async () => {
@@ -220,7 +221,7 @@ export const getImpactData = async () => {
     Omit<ImpactData, "metrics"> & {
       metrics: string | ImpactData["metrics"];
     }
-  >("/impact");
+  >("/public/impact");
 
   let parsedMetrics: ImpactData["metrics"] = {};
   if (typeof response.metrics === "string") {
