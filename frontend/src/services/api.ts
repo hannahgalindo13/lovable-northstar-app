@@ -61,6 +61,15 @@ export type Donation = {
   campaignName?: string | null;
   notes?: string | null;
   channelSource: string;
+  donorName?: string | null;
+  email?: string | null;
+  userId?: string | null;
+};
+
+export type PublicDonationRequest = {
+  amount: number;
+  donorName: string;
+  email?: string;
 };
 
 export type DonorDonationHistoryItem = {
@@ -159,10 +168,9 @@ export type ResidentFormInput = {
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   try {
     const token = getAuthToken();
-    const isPublicEndpoint = endpoint.startsWith("/public/");
     const mergedHeaders: HeadersInit = {
       "Content-Type": "application/json",
-      ...(!isPublicEndpoint && token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options?.headers ?? {}),
     };
 
@@ -285,6 +293,14 @@ export const getDonations = async () => {
 export const getMyDonations = async () => {
   const response = await api.get<WrappedResponse<DonorDonationHistoryItem[]> | DonorDonationHistoryItem[]>(
     "/donations/my",
+  );
+  return unwrap(response);
+};
+
+export const donatePublic = async (payload: PublicDonationRequest) => {
+  const response = await api.post<WrappedResponse<{ donationId: number; amount: number; donationDate: string; donorName: string }> | { donationId: number; amount: number; donationDate: string; donorName: string }>(
+    "/public/donate",
+    payload,
   );
   return unwrap(response);
 };

@@ -11,6 +11,7 @@ import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ImpactDashboard from "./pages/ImpactDashboard.tsx";
 import Login from "./pages/Login.tsx";
+import Register from "./pages/Register.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import DonorsPage from "./pages/DonorsPage.tsx";
 import CaseloadPage from "./pages/CaseloadPage.tsx";
@@ -20,6 +21,7 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import { AdminLayout } from "./components/AdminLayout.tsx";
 import DonorDashboard from "./pages/DonorDashboard.tsx";
+import Donate from "./pages/Donate.tsx";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/impact" element={<ImpactDashboard />} />
+              <Route path="/donate" element={<Donate />} />
               <Route
                 path="/donors"
                 element={
@@ -43,7 +46,9 @@ const App = () => (
                 }
               />
               <Route path="/donor" element={<Navigate to="/donors" replace />} />
+              <Route path="/my-donations" element={<Navigate to="/donors" replace />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/dashboard" element={<Navigate to="/admin/dashboard" replace />} />
               <Route

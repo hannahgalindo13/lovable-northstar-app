@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Backend.Models.Dtos;
 
 public class SupporterUpsertDto
@@ -33,6 +35,20 @@ public class DonationUpsertDto
     public string? Notes { get; set; }
     public int? CreatedByPartnerId { get; set; }
     public int? ReferralPostId { get; set; }
+}
+
+public class PublicDonationRequestDto
+{
+    [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
+    public decimal Amount { get; set; }
+
+    [Required]
+    [StringLength(120)]
+    public string DonorName { get; set; } = string.Empty;
+
+    [EmailAddress]
+    [StringLength(254)]
+    public string? Email { get; set; }
 }
 
 public class ResidentUpsertDto

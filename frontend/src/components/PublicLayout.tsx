@@ -64,7 +64,7 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
                   Sign In
                 </Button>
               </Link>
-              <Link to="/#donate">
+              <Link to="/donate">
                 <Button size="sm" className="rounded-full bg-terracotta text-terracotta-foreground hover:bg-terracotta/90 font-body font-medium text-[13px] px-5 gap-1.5 ml-1 transition-all duration-300 hover:shadow-lg hover:shadow-terracotta/20">
                   <Heart className="w-3 h-3" /> Donate
                 </Button>
@@ -113,7 +113,7 @@ export const PublicLayout = ({ children }: { children: React.ReactNode }) => {
                   <Link to="/login" onClick={() => setMobileOpen(false)}>
                     <Button variant="outline" className="w-full font-body rounded-xl border-0 bg-secondary/50">Sign In</Button>
                   </Link>
-                  <Link to="/#donate" onClick={() => setMobileOpen(false)}>
+                  <Link to="/donate" onClick={() => setMobileOpen(false)}>
                     <Button className="w-full bg-terracotta text-terracotta-foreground hover:bg-terracotta/90 font-body font-medium gap-1.5 rounded-xl">
                       <Heart className="w-3.5 h-3.5" /> Donate
                     </Button>

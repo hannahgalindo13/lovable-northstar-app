@@ -57,13 +57,21 @@ public partial class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<Donation>(entity =>
         {
             entity.HasIndex(e => e.SupporterId, "IX_Donations_SupporterId");
+            entity.HasIndex(e => e.UserId, "IX_Donations_UserId");
 
             entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
             entity.Property(e => e.EstimatedValue).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.DonorName).HasMaxLength(120);
+            entity.Property(e => e.Email).HasMaxLength(254);
 
             entity.HasOne(d => d.Supporter).WithMany(p => p.Donations)
                 .HasForeignKey(d => d.SupporterId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(d => d.User)
+                .WithMany(u => u.Donations)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<DonationAllocation>(entity =>

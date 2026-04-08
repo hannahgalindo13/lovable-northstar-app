@@ -14,10 +14,12 @@ namespace Backend.Controllers;
 public class DonationsController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly ILogger<DonationsController> _logger;
 
-    public DonationsController(AppDbContext db)
+    public DonationsController(AppDbContext db, ILogger<DonationsController> logger)
     {
         _db = db;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -39,9 +41,15 @@ public class DonationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<Donation>>.Fail(ex.Message));
+            _logger.LogError(ex, "Failed to load donations for admin.");
+            return StatusCode(500, ApiResponse<List<Donation>>.Fail("Unable to load donations."));
         }
     }
+
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin")]
+    public Task<ActionResult<ApiResponse<List<Donation>>>> GetAllDonations([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        => GetAll(page, pageSize);
 
     [HttpGet("{id:int}")]
     [Authorize(Roles = "Admin")]
@@ -57,7 +65,8 @@ public class DonationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<Donation>.Fail(ex.Message));
+            _logger.LogError(ex, "Failed to load donation {DonationId}.", id);
+            return StatusCode(500, ApiResponse<Donation>.Fail("Unable to load donation."));
         }
     }
 
@@ -95,7 +104,8 @@ public class DonationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<Donation>.Fail(ex.Message));
+            _logger.LogError(ex, "Failed to create donation.");
+            return StatusCode(500, ApiResponse<Donation>.Fail("Unable to create donation."));
         }
     }
 
@@ -129,7 +139,8 @@ public class DonationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<Donation>.Fail(ex.Message));
+            _logger.LogError(ex, "Failed to update donation {DonationId}.", id);
+            return StatusCode(500, ApiResponse<Donation>.Fail("Unable to update donation."));
         }
     }
 
@@ -151,7 +162,8 @@ public class DonationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+            _logger.LogError(ex, "Failed to delete donation {DonationId}.", id);
+            return StatusCode(500, ApiResponse<object>.Fail("Unable to delete donation."));
         }
     }
 
@@ -191,7 +203,8 @@ public class DonationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, ApiResponse<List<MyDonationResponse>>.Fail(ex.Message));
+            _logger.LogError(ex, "Failed to load donations for current donor.");
+            return StatusCode(500, ApiResponse<List<MyDonationResponse>>.Fail("Unable to load your donations."));
         }
     }
 

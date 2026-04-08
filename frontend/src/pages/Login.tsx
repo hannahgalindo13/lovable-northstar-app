@@ -125,7 +125,10 @@ const Login = () => {
             </div>
           </div>
 
-          <p className="mt-10 text-center text-xs text-muted-foreground font-body">
+          <p className="mt-10 text-center text-xs text-muted-foreground font-body space-y-2">
+            <span className="block">
+              New donor? <Link to="/register" className="text-terracotta hover:underline">Create an account</Link>
+            </span>
             <Link to="/" className="text-terracotta hover:underline">← Back to Home</Link>
           </p>
         </motion.div>
